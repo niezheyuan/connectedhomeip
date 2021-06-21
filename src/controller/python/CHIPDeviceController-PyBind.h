@@ -20,6 +20,7 @@
 #include <controller/CHIPDeviceController.h>
 #include <core/CHIPCore.h>
 #include <setup_payload/QRCodeSetupPayloadParser.h>
+#include "ChipDeviceController-ScriptDeviceAddressUpdateDelegate.h"
 
 namespace chip {
 namespace Controller {
@@ -35,12 +36,15 @@ public:
     CHIP_ERROR Shutdown();
     CHIP_ERROR UnpairDevice(NodeId remoteDeviceId);
     CHIP_ERROR DiscoverAllCommissioning();
+    void SetDeviceAddressUpdateDelegate(chip::Controller::DeviceAddressUpdateDelegate *delegate);
+    
     
 
 private:
     chip::Controller::DeviceCommissioner * deviceCommissioner;
     NodeId localDeviceId;
     NodeId kDefaultCtlrDeviceId = kTestControllerNodeId;
+    chip::Controller::DeviceAddressUpdateDelegate *sDeviceAddressUpdateDelegate;
     // NodeId kRTestemoteDeviceId  = kTestDeviceNodeId;
 };
 

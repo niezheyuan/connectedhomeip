@@ -13,7 +13,6 @@
 #include <inttypes.h>
 #include <net/if.h>
 
-#include "ChipDeviceController-ScriptDeviceAddressUpdateDelegate.h"
 #include "ChipDeviceController-ScriptDevicePairingDelegate.h"
 #include "ChipDeviceController-StorageDelegate.h"
 
@@ -39,7 +38,6 @@ using namespace chip::Controller;
 namespace {
 chip::Controller::PythonPersistentStorageDelegate sStorageDelegate;
 chip::Controller::ScriptDevicePairingDelegate sPairingDelegate;
-chip::Controller::ScriptDeviceAddressUpdateDelegate sDeviceAddressUpdateDelegate;
 chip::Controller::ExampleOperationalCredentialsIssuer sOperationalCredentialsIssuer;
 } // namespace
 
@@ -65,7 +63,7 @@ CHIPDeviceControllerPyBind::CHIPDeviceControllerPyBind()
     SuccessOrExit(err = sOperationalCredentialsIssuer.Initialize(sStorageDelegate));
 
     initParams.storageDelegate                = &sStorageDelegate;
-    initParams.mDeviceAddressUpdateDelegate   = &sDeviceAddressUpdateDelegate;
+    initParams.mDeviceAddressUpdateDelegate   = sDeviceAddressUpdateDelegate;
     initParams.pairingDelegate                = &sPairingDelegate;
     initParams.operationalCredentialsDelegate = &sOperationalCredentialsIssuer;
     initParams.imDelegate                     = &PythonInteractionModelDelegate::Instance();
@@ -102,6 +100,10 @@ CHIP_ERROR CHIPDeviceControllerPyBind::Shutdown(){
 }
 CHIP_ERROR CHIPDeviceControllerPyBind::DiscoverAllCommissioning(){
     return deviceCommissioner->DiscoverAllCommissioning();
+}
+
+void CHIPDeviceControllerPyBind::SetDeviceAddressUpdateDelegate(chip::Controller::DeviceAddressUpdateDelegate *delegate){
+    sDeviceAddressUpdateDelegate = delegate;
 }
 
 }//Controller
