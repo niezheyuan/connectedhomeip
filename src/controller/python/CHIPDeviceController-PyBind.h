@@ -21,6 +21,7 @@
 #include <core/CHIPCore.h>
 #include <setup_payload/QRCodeSetupPayloadParser.h>
 #include "ChipDeviceController-ScriptDeviceAddressUpdateDelegate.h"
+#include "PyDelegateWrappers.h"
 
 namespace chip {
 namespace Controller {
@@ -30,22 +31,25 @@ class CHIPDeviceControllerPyBind
 public:
     CHIPDeviceControllerPyBind();
     ~CHIPDeviceControllerPyBind() {}
+    CHIP_ERROR Init();
     CHIP_ERROR PairBLE(uint16_t discriminator, uint32_t setupPINCode, NodeId nodeid);
     CHIP_ERROR StopPairingBLE(NodeId nodeid);
     CHIP_ERROR CloseBleConnection();
     CHIP_ERROR Shutdown();
     CHIP_ERROR UnpairDevice(NodeId remoteDeviceId);
     CHIP_ERROR DiscoverAllCommissioning();
-    void SetDeviceAddressUpdateDelegate(chip::Controller::DeviceAddressUpdateDelegate *delegate);
-    
-    
+    void SetDeviceAddressUpdateDelegate(chip::Controller::DeviceAddressUpdateDelegate *sdelegate);
+    void SetDevicePairingDelegate(chip::Controller::DevicePairingDelegate *delegate);
+
 
 private:
     chip::Controller::DeviceCommissioner * deviceCommissioner;
     NodeId localDeviceId;
     NodeId kDefaultCtlrDeviceId = kTestControllerNodeId;
     chip::Controller::DeviceAddressUpdateDelegate *sDeviceAddressUpdateDelegate;
-    // NodeId kRTestemoteDeviceId  = kTestDeviceNodeId;
+    chip::Controller::DevicePairingDelegate *sPairingDelegate;
+    chip::Controller::CommissionerInitParams initParams;
+
 };
 
 } // Namespace Controller

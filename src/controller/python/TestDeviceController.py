@@ -8,15 +8,28 @@ logger.setLevel(logging.DEBUG)
 descriptor = 0xF01
 setup_code = 20202020
 node_id = 1
-class TestDelegate(CHIPDeviceController.PyDeviceAddressUpdateDelegate):
+class PyDeviceAddressUpdateDelegate(CHIPDeviceController.PyDeviceAddressUpdateDelegate):
     def OnAddressUpdateComplete(nodeId, error):
         print('Node ID: {}'.format(nodeId))
         print('Error: {}'.format(error))
 
+class PyDevicePairingDelegate(CHIPDeviceController.PyDevicePairingDelegate):
+    def OnPairingComplete(self, error):
+        print("OnPairingComplete Error: {}".format(error))
+
+    def OnStatusUpdate(self, status):
+        print("OnStatusUpdate Status: {}".format(status))
+
+    def OnPairingDeleted(self, error):
+        print("OnPairingDeleted Error: {}".format(error))
+
 
 controller = CHIPDeviceController.CHIPDeviceControllerPyBind()
-t = TestDelegate()
-controller.SetDeviceAddressUpdateDelegate(t)
+device_address_delegate = PyDeviceAddressUpdateDelegate()
+device_pairing_delegate = PyDevicePairingDelegate()
+controller.SetDeviceAddressUpdateDelegate(device_address_delegate)
+controller.SetDevicePairingDelegate(device_pairing_delegate)
+controller.Init()
 controller.PairBLE(descriptor, setup_code, node_id)
 # unpair_result = controller.UnpairDevice(node_id)
 # print('Unpair Result: {}'.format(unpair_result))

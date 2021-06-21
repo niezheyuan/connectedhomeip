@@ -37,7 +37,6 @@ using namespace chip::Controller;
 
 namespace {
 chip::Controller::PythonPersistentStorageDelegate sStorageDelegate;
-chip::Controller::ScriptDevicePairingDelegate sPairingDelegate;
 chip::Controller::ExampleOperationalCredentialsIssuer sOperationalCredentialsIssuer;
 } // namespace
 
@@ -47,8 +46,6 @@ namespace Controller {
 CHIPDeviceControllerPyBind::CHIPDeviceControllerPyBind()
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
-    CommissionerInitParams initParams;
-
     err = chip::Platform::MemoryInit();
     SuccessOrExit(err);
 
@@ -60,18 +57,23 @@ CHIPDeviceControllerPyBind::CHIPDeviceControllerPyBind()
         localDeviceId = kDefaultCtlrDeviceId;
     }
 
-    SuccessOrExit(err = sOperationalCredentialsIssuer.Initialize(sStorageDelegate));
+exit:
+    return;
+}
 
+CHIP_ERROR CHIPDeviceControllerPyBind::Init(){
+    CHIP_ERROR err = CHIP_NO_ERROR;
+    SuccessOrExit(err = sOperationalCredentialsIssuer.Initialize(sStorageDelegate));
     initParams.storageDelegate                = &sStorageDelegate;
     initParams.mDeviceAddressUpdateDelegate   = sDeviceAddressUpdateDelegate;
-    initParams.pairingDelegate                = &sPairingDelegate;
+    initParams.pairingDelegate                = sPairingDelegate;
     initParams.operationalCredentialsDelegate = &sOperationalCredentialsIssuer;
     initParams.imDelegate                     = &PythonInteractionModelDelegate::Instance();
 
     SuccessOrExit(err = (deviceCommissioner)->Init(localDeviceId, initParams));
     SuccessOrExit(err = (deviceCommissioner)->ServiceEvents());
 exit:
-    return;
+    return err;
 }
 // pychip_DeviceController_ConnectBLE
 CHIP_ERROR CHIPDeviceControllerPyBind::PairBLE(uint16_t discriminator,
@@ -104,6 +106,10 @@ CHIP_ERROR CHIPDeviceControllerPyBind::DiscoverAllCommissioning(){
 
 void CHIPDeviceControllerPyBind::SetDeviceAddressUpdateDelegate(chip::Controller::DeviceAddressUpdateDelegate *delegate){
     sDeviceAddressUpdateDelegate = delegate;
+}
+
+void CHIPDeviceControllerPyBind::SetDevicePairingDelegate(chip::Controller::DevicePairingDelegate *delegate){
+    sPairingDelegate = delegate;
 }
 
 }//Controller
