@@ -334,7 +334,7 @@ config("fuzzing_default") {
 }
 
 config("no_rtti") {
-  cflags_cc = [ "-fno-rtti" ]
+
 }
 
 config("rtti") {
@@ -346,7 +346,7 @@ config("rtti_default") {
 }
 
 config("no_exceptions") {
-  cflags = [ "-fno-exceptions" ]
+
 }
 
 config("exceptions") {

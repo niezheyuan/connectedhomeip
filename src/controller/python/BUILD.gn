@@ -27,13 +27,23 @@ if (current_os == "mac") {
 }
 
 config("controller_wno_deprecate") {
-  cflags = [ "-Wno-deprecated-declarations" ]
+  cflags = [ 
+    "-Wno-deprecated-declarations", 
+  "-Wno-shadow",
+  "-Wno-unused-result",
+  "-Wsign-compare",
+  "-Wunreachable-code"
+  ]
 }
 
 shared_library("ChipDeviceCtrl") {
   output_name = "_ChipDeviceCtrl"
   output_dir = "${target_out_dir}/chip"
-  include_dirs = [ "." ]
+  include_dirs = [ 
+                  "." , 
+                  "/usr/local/include/pybind11/", 
+                  "/Library/Frameworks/Python.framework/Versions/3.9/include/python3.9",
+                  ]
 
   sources = [
     "ChipDeviceController-ScriptBinding.cpp",
@@ -53,6 +63,9 @@ shared_library("ChipDeviceCtrl") {
     "chip/logging/LoggingRedirect.cpp",
     "chip/native/StackInit.cpp",
     "chip/setup_payload/Parser.cpp",
+    "CHIPDeviceController-PyBind.cpp",
+    "CHIPDeviceController-PyBind.h",
+    "ControlerBinder.cpp",
   ]
 
   if (chip_enable_ble) {
@@ -63,7 +76,19 @@ shared_library("ChipDeviceCtrl") {
         "chip/ble/darwin/AdapterListing.mm",
         "chip/ble/darwin/Scanning.mm",
       ]
-      cflags = [ "-fobjc-arc" ]
+      cflags = [ 
+        "-fobjc-arc" ,
+        "-fno-common", 
+        "-dynamic", 
+        "-DNDEBUG", 
+        "-g", 
+        "-fwrapv",
+        "-O3", 
+        "-arch",
+         "arm64", 
+         "-arch", 
+         "x86_64",
+        "-g"]
     } else {
       assert(false, "No BLE implementation available for the current OS.")
     }
@@ -81,6 +106,15 @@ shared_library("ChipDeviceCtrl") {
     "${chip_root}/src/transport",
   ]
   configs += [ ":controller_wno_deprecate" ]
+  ldflags = [
+    "-F/Library/Frameworks/",  
+    "-framework", 
+    "Python", 
+    "-framework", 
+    "CoreFoundation",
+    "-L/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin",
+    "-frtti"
+    ]
 }
 
 pw_python_action("python") {
