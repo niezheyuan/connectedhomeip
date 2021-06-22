@@ -20,7 +20,6 @@
 #include <controller/CHIPDeviceController.h>
 #include <core/CHIPCore.h>
 #include <setup_payload/QRCodeSetupPayloadParser.h>
-#include "ChipDeviceController-ScriptDeviceAddressUpdateDelegate.h"
 #include "PyDelegateWrappers.h"
 
 namespace chip {
