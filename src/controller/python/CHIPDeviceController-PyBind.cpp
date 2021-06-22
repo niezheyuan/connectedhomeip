@@ -17,7 +17,7 @@
 #include "ChipDeviceController-StorageDelegate.h"
 
 
-#include "chip/interaction_model/Delegate.h"
+#include <controller/python/Delegate.h>
 
 #include <app/CommandSender.h>
 #include <app/InteractionModelEngine.h>

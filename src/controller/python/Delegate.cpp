@@ -19,7 +19,7 @@
 
 #include <app/CommandSender.h>
 #include <app/InteractionModelEngine.h>
-#include <controller/python/chip/interaction_model/Delegate.h>
+#include <controller/python/Delegate.h>
 #include <support/logging/CHIPLogging.h>
 
 using namespace chip::app;

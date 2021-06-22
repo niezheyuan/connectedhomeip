@@ -9,7 +9,7 @@ namespace py = pybind11;
 
 
 
-PYBIND11_MODULE(CHIPDeviceController, m) {
+PYBIND11_MODULE(CHIPController, m) {
   py::class_<chip::Controller::CHIPDeviceControllerPyBind>(m, "CHIPDeviceControllerPyBind")
     .def(py::init<>())
     .def("Init", &chip::Controller::CHIPDeviceControllerPyBind::Init)

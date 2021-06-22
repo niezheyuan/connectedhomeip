@@ -1,4 +1,4 @@
-import CHIPDeviceController
+from PyCHIPController import CHIPController
 import time
 
 import logging
@@ -8,12 +8,12 @@ logger.setLevel(logging.DEBUG)
 descriptor = 0xF01
 setup_code = 20202020
 node_id = 1
-class PyDeviceAddressUpdateDelegate(CHIPDeviceController.PyDeviceAddressUpdateDelegate):
+class PyDeviceAddressUpdateDelegate(CHIPController.PyDeviceAddressUpdateDelegate):
     def OnAddressUpdateComplete(nodeId, error):
         print('Node ID: {}'.format(nodeId))
         print('Error: {}'.format(error))
 
-class PyDevicePairingDelegate(CHIPDeviceController.PyDevicePairingDelegate):
+class PyDevicePairingDelegate(CHIPController.PyDevicePairingDelegate):
     def OnPairingComplete(self, error):
         print("OnPairingComplete Error: {}".format(error))
 
@@ -24,7 +24,7 @@ class PyDevicePairingDelegate(CHIPDeviceController.PyDevicePairingDelegate):
         print("OnPairingDeleted Error: {}".format(error))
 
 
-controller = CHIPDeviceController.CHIPDeviceControllerPyBind()
+controller = CHIPController.CHIPDeviceControllerPyBind()
 device_address_delegate = PyDeviceAddressUpdateDelegate()
 device_pairing_delegate = PyDevicePairingDelegate()
 controller.SetDeviceAddressUpdateDelegate(device_address_delegate)
