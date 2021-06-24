@@ -25,18 +25,19 @@ struct <name> : public std::exception
 '''.replace('<name>',self.name).replace('<message>',self.message)
 
     def create_py_bind(self, module_name):
-        return 'py::register_exception<{}>({}, "{}");'.format(self.name, module_name, self.name)
+        return 'py::register_exception<chip::PythonBindings::{}>({}, "{}");'.format(self.name, module_name, self.name)
     
     def create_else_if(self, var_name):
         return '''
     else if (<var_name> == <error_code>) {
-        throw <name>()
+        throw chip::PythonBindings::<name>();
     }'''.replace('<var_name>',var_name).replace('<error_code>',str(self.code)).replace('<name>',self.name)
 
 def generate_header(error_codes):
     structs = "".join([x.create_exception_class() for x in error_codes])
     return '''
 #include <exception>
+#include <core/CHIPError.h>
 
 namespace chip {
 namespace PythonBindings {
@@ -45,26 +46,26 @@ namespace PythonBindings {
 void CHIPErrorToException(CHIP_ERROR err);
 }
 }
-
 '''.replace('<structs>',structs)
 
 def generate_cpp(error_codes):
-    exception_binding = '\n\t'.join([x.create_py_bind('m') for x in error_codes])
+    exception_binding = '\n\t'.join([x.create_py_bind('M("ChipExceptions")') for x in error_codes])
     elseifs = ''.join([x.create_else_if('err') for x in error_codes])
     return '''
 #include "pybind11/pybind11.h"
-#include "CHIPErrorBindings.h"
+#include "CHIPErrorToExceptionBindings.h"
 
 namespace py = pybind11;
 
 void CHIPErrorToException(CHIP_ERROR err) {
-    if err == CHIP_NO_ERR {
+    if (err == CHIP_NO_ERROR) {
         //Do Nothing
     }<elseifs>
 }
 
-PYBIND11_MODULE(CHIPException, m) {
-    m.def("CHIPErrorToException", &CHIPErrorToException, "Converts a CHIP_ERROR (int) to an Exception")
+void bind_CHIPController_ChipExceptions(std::function< pybind11::module &(std::string const &namespace_) > &M)
+{
+    M("ChipExceptions").def("CHIPErrorToException", &CHIPErrorToException, "Converts a CHIP_ERROR (int) to an Exception");
 
     <exception_binding>
 }

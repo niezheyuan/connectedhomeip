@@ -5,8 +5,22 @@ import logging
 logger = logging.getLogger("ChipBLEMgr")
 logger.setLevel(logging.DEBUG)
 
-descriptor = 0xF01
-setup_code = 20202020
+setup_payload = CHIPController.SetupPayload()
+qr_code_parser = CHIPController.QRCodeSetupPayloadParser("VP:vendorpayload%MT:W0GU2OTB00KA0648G00")
+payload = qr_code_parser.populatePayload(setup_payload)
+print("Version: {}".format(setup_payload.version))
+print("Vendor ID: {}".format(setup_payload.vendorID))
+print("Product ID: {}".format(setup_payload.productID))
+print("Commissioning Flow: {}".format(setup_payload.commissioningFlow))
+print("Rendezvous Information Flag: {}".format(setup_payload.rendezvousInformation.Raw()))
+print("Discriminator: {}".format(setup_payload.discriminator))
+print("Setup Pin Code: {}".format(setup_payload.setUpPINCode))
+print(setup_payload.getAllOptionalVendorData())
+
+
+
+descriptor = 0xF00
+setup_code = 20202021
 node_id = 1
 class PyDeviceAddressUpdateDelegate(CHIPController.PyDeviceAddressUpdateDelegate):
     def OnAddressUpdateComplete(nodeId, error):
@@ -24,13 +38,15 @@ class PyDevicePairingDelegate(CHIPController.PyDevicePairingDelegate):
         print("OnPairingDeleted Error: {}".format(error))
 
 
-controller = CHIPController.CHIPDeviceControllerPyBind()
-device_address_delegate = PyDeviceAddressUpdateDelegate()
-device_pairing_delegate = PyDevicePairingDelegate()
-controller.SetDeviceAddressUpdateDelegate(device_address_delegate)
-controller.SetDevicePairingDelegate(device_pairing_delegate)
-controller.Init()
-controller.PairBLE(descriptor, setup_code, node_id)
+# controller = CHIPController.CHIPDeviceControllerPyBind()
+# device_address_delegate = PyDeviceAddressUpdateDelegate()
+# device_pairing_delegate = PyDevicePairingDelegate()
+# controller.SetDeviceAddressUpdateDelegate(device_address_delegate)
+# controller.SetDevicePairingDelegate(device_pairing_delegate)
+# controller.Init()
+# controller.PairBLE(descriptor, setup_code, node_id)
+
+
 # unpair_result = controller.UnpairDevice(node_id)
 # print('Unpair Result: {}'.format(unpair_result))
 # time.sleep(35)

@@ -22,6 +22,8 @@
 #include <setup_payload/QRCodeSetupPayloadParser.h>
 #include "PyDelegateWrappers.h"
 
+
+
 namespace chip {
 namespace Controller {
 

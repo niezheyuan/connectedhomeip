@@ -25,24 +25,25 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-from chip import ChipDeviceCtrl
-from chip import exceptions
-import ctypes
+# import ctypes
 import sys
 import os
-import platform
+# import platform
 import random
 from optparse import OptionParser, OptionValueError
 import shlex
-import base64
+# import base64
 import textwrap
 import time
 import string
-import re
-import traceback
+# import re
+# import traceback
 from cmd import Cmd
-from chip.ChipBleUtility import FAKE_CONN_OBJ_VALUE
-from chip.setup_payload import SetupPayload
+import exceptions
+import ChipDeviceCtrl
+from PyCHIPController.CHIPController import SetupPayload
+from PyCHIPController.CHIPController import QRCodeSetupPayloadParser, ManualSetupPayloadParser
+
 
 # Extend sys.path with one or more directories, relative to the location of the
 # running script, in which the chip package might be found .  This makes it
@@ -66,10 +67,10 @@ for relInstallDir in relChipPackageInstallDirs:
         sys.path.insert(0, absInstallDir)
 
 
-if platform.system() == 'Darwin':
-    from chip.ChipCoreBluetoothMgr import CoreBluetoothManager as BleManager
-elif sys.platform.startswith('linux'):
-    from chip.ChipBluezMgr import BluezManager as BleManager
+# if platform.system() == 'Darwin':
+#     from chip.ChipCoreBluetoothMgr import CoreBluetoothManager as BleManager
+# elif sys.platform.startswith('linux'):
+#     from chip.ChipBluezMgr import BluezManager as BleManager
 
 # The exceptions for CHIP Device Controller CLI
 
@@ -155,15 +156,15 @@ class DeviceMgrCmd(Cmd):
         self.devCtrl = ChipDeviceCtrl.ChipDeviceController(
             controllerNodeId=controllerNodeId, bluetoothAdapter=bluetoothAdapter)
 
-        # If we are on Linux and user selects non-default bluetooth adapter.
-        if sys.platform.startswith("linux") and (bluetoothAdapter is not None):
-            try:
-                self.bleMgr = BleManager(self.devCtrl)
-                self.bleMgr.ble_adapter_select("hci{}".format(bluetoothAdapter))
-            except Exception as ex:
-                traceback.print_exc()
-                print("Failed to initialize BLE, if you don't have BLE, run chip-device-ctrl with --no-ble")
-                raise ex
+        # # If we are on Linux and user selects non-default bluetooth adapter.
+        # if sys.platform.startswith("linux") and (bluetoothAdapter is not None):
+        #     try:
+        #         self.bleMgr = BleManager(self.devCtrl)
+        #         self.bleMgr.ble_adapter_select("hci{}".format(bluetoothAdapter))
+        #     except Exception as ex:
+        #         traceback.print_exc()
+        #         print("Failed to initialize BLE, if you don't have BLE, run chip-device-ctrl with --no-ble")
+        #         raise ex
 
         self.historyFileName = os.path.expanduser(
             "~/.chip-device-ctrl-history")
@@ -184,24 +185,24 @@ class DeviceMgrCmd(Cmd):
     command_names = [
         "setup-payload",
 
-        "ble-scan",
-        "ble-adapter-select",
-        "ble-adapter-print",
-        "ble-debug-log",
+        # "ble-scan",
+        # "ble-adapter-select",
+        # "ble-adapter-print",
+        # "ble-debug-log",
 
         "connect",
-        "close-ble",
-        "resolve",
-        "zcl",
-        "zclread",
-        "zclconfigure",
+        # "close-ble",
+        # "resolve",
+        # "zcl",
+        # "zclread",
+        # "zclconfigure",
 
-        "discover",
+        # "discover",
 
-        "set-pairing-wifi-credential",
-        "set-pairing-thread-credential",
+        # "set-pairing-wifi-credential",
+        # "set-pairing-thread-credential",
 
-        "get-fabricid",
+        # "get-fabricid",
     ]
 
     def parseline(self, line):
@@ -328,81 +329,95 @@ class DeviceMgrCmd(Cmd):
                 self.do_help("setup-payload")
                 return
 
+            setup_payload = SetupPayload()
+
             if args[0] == "parse-manual":
-                SetupPayload().ParseManualPairingCode(args[1]).Print()
+                qr_code_parser = ManualSetupPayloadParser(args[1])
+                qr_code_parser.populatePayload(setup_payload)
 
             if args[0] == "parse-qr":
-                SetupPayload().ParseQrCode(args[1]).Print()
+
+                qr_code_parser = QRCodeSetupPayloadParser(args[1])
+                qr_code_parser.populatePayload(setup_payload)
+            
+            print("Version: {}".format(setup_payload.version))
+            print("Vendor ID: {}".format(setup_payload.vendorID))
+            print("Product ID: {}".format(setup_payload.productID))
+            print("Commissioning Flow: {}".format(setup_payload.commissioningFlow))
+            print("Rendezvous Information Flag: {}".format(setup_payload.rendezvousInformation.Raw()))
+            print("Discriminator: {}".format(setup_payload.discriminator))
+            print("Setup Pin Code: {}".format(setup_payload.setUpPINCode))
+            print(setup_payload.getAllOptionalVendorData())
 
         except exceptions.ChipStackException as ex:
             print(str(ex))
             return
 
-    def do_bleadapterselect(self, line):
-        """
-        ble-adapter-select
+    # def do_bleadapterselect(self, line):
+    #     """
+    #     ble-adapter-select
 
-        Start BLE adapter select, deprecated, you can select adapter by command line arguments.
-        """
-        if sys.platform.startswith("linux"):
-            if not self.bleMgr:
-                self.bleMgr = BleManager(self.devCtrl)
+    #     Start BLE adapter select, deprecated, you can select adapter by command line arguments.
+    #     """
+    #     if sys.platform.startswith("linux"):
+    #         if not self.bleMgr:
+    #             self.bleMgr = BleManager(self.devCtrl)
 
-            self.bleMgr.ble_adapter_select(line)
-            print(
-                "This change only applies to ble-scan\n"
-                "Please run device controller with --bluetooth-adapter=<adapter-name> to select adapter\n" +
-                "e.g. chip-device-ctrl --bluetooth-adapter hci0"
-            )
-        else:
-            print(
-                "ble-adapter-select only works in Linux, ble-adapter-select mac_address"
-            )
+    #         self.bleMgr.ble_adapter_select(line)
+    #         print(
+    #             "This change only applies to ble-scan\n"
+    #             "Please run device controller with --bluetooth-adapter=<adapter-name> to select adapter\n" +
+    #             "e.g. chip-device-ctrl --bluetooth-adapter hci0"
+    #         )
+    #     else:
+    #         print(
+    #             "ble-adapter-select only works in Linux, ble-adapter-select mac_address"
+    #         )
 
-        return
+    #     return
 
-    def do_bleadapterprint(self, line):
-        """
-        ble-adapter-print
+    # def do_bleadapterprint(self, line):
+    #     """
+    #     ble-adapter-print
 
-        Print attached BLE adapter.
-        """
-        if sys.platform.startswith("linux"):
-            if not self.bleMgr:
-                self.bleMgr = BleManager(self.devCtrl)
+    #     Print attached BLE adapter.
+    #     """
+    #     if sys.platform.startswith("linux"):
+    #         if not self.bleMgr:
+    #             self.bleMgr = BleManager(self.devCtrl)
 
-            self.bleMgr.ble_adapter_print()
-        else:
-            print("ble-adapter-print only works in Linux")
+    #         self.bleMgr.ble_adapter_print()
+    #     else:
+    #         print("ble-adapter-print only works in Linux")
 
-        return
+    #     return
 
-    def do_bledebuglog(self, line):
-        """
-        ble-debug-log 0:1
-          0: disable BLE debug log
-          1: enable BLE debug log
-        """
-        if not self.bleMgr:
-            self.bleMgr = BleManager(self.devCtrl)
+    # def do_bledebuglog(self, line):
+    #     """
+    #     ble-debug-log 0:1
+    #       0: disable BLE debug log
+    #       1: enable BLE debug log
+    #     """
+    #     if not self.bleMgr:
+    #         self.bleMgr = BleManager(self.devCtrl)
 
-        self.bleMgr.ble_debug_log(line)
+    #     self.bleMgr.ble_debug_log(line)
 
-        return
+    #     return
 
-    def do_blescan(self, line):
-        """
-        ble-scan
+    # def do_blescan(self, line):
+    #     """
+    #     ble-scan
 
-        Start BLE scanning operations.
-        """
+    #     Start BLE scanning operations.
+    #     """
 
-        if not self.bleMgr:
-            self.bleMgr = BleManager(self.devCtrl)
+    #     if not self.bleMgr:
+    #         self.bleMgr = BleManager(self.devCtrl)
 
-        self.bleMgr.scan(line)
+    #     self.bleMgr.scan(line)
 
-        return
+    #     return
 
     def ConnectFromSetupPayload(self, setupPayload, nodeid):
         # TODO(cecille): Get this from the C++ code?
@@ -484,6 +499,7 @@ class DeviceMgrCmd(Cmd):
                 self.devCtrl.ConnectIP(args[1].encode(
                     "utf-8"), int(args[2]), nodeid)
             elif args[0] == "-ble" and len(args) >= 3:
+
                 self.devCtrl.ConnectBLE(int(args[1]), int(args[2]), nodeid)
             elif args[0] == '-qr' and len(args) >=2:
                 if len(args) == 3:

@@ -53,6 +53,8 @@ shared_library("CHIPController") {
     "CHIPDeviceController-PyBind.cpp",
     "CHIPDeviceController-PyBind.h",
     "ControlerBinder.cpp",
+    "CHIPErrorToExceptionBindings.cpp",
+    "CHIPErrorToExceptionBindings.h",
   ]
 
   if (chip_enable_ble) {
