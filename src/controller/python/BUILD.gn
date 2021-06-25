@@ -53,8 +53,8 @@ shared_library("CHIPController") {
     "CHIPDeviceController-PyBind.cpp",
     "CHIPDeviceController-PyBind.h",
     "ControlerBinder.cpp",
-    "CHIPErrorToExceptionBindings.cpp",
-    "CHIPErrorToExceptionBindings.h",
+    "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.cpp",
+    "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.h",
   ]
 
   if (chip_enable_ble) {
@@ -89,6 +89,7 @@ shared_library("CHIPController") {
     "${chip_root}/src/platform",
     "${chip_root}/src/setup_payload",
     "${chip_root}/src/transport",
+    ":build_exceptions" 
   ]
   configs += [ ":controller_wno_deprecate" ]
   ldflags = [
@@ -100,6 +101,22 @@ shared_library("CHIPController") {
     "-L/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin",
     "-frtti"
     ]
+}
+pw_python_action("build_exceptions") {
+  script = "create_error_wrapper.py"
+
+  header_file = "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.h"
+  cpp_file = "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.cpp"
+  outputs = [
+              header_file,
+              cpp_file,
+            ]
+
+  args = [
+    "--output_cpp_file=" + rebase_path(cpp_file, root_build_dir),
+    "--output_header_file="+ rebase_path(header_file, root_build_dir),
+  ]
+
 }
 
 pw_python_action("python") {

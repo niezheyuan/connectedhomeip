@@ -1,4 +1,5 @@
-import os
+import optparse
+import sys
 import re
 
 class ErrorCode(object):
@@ -71,8 +72,8 @@ void bind_CHIPController_ChipExceptions(std::function< pybind11::module &(std::s
 }
 '''.replace('<exception_binding>',exception_binding).replace('<elseifs>',elseifs)
 
-ERROR_PATH = '../../lib/core/CHIPError.h'
-CONFIG_PATH = '../../lib/core/CHIPConfig.h'
+ERROR_PATH = '../../src/lib/core/CHIPError.h'
+CONFIG_PATH = '../../src/lib/core/CHIPConfig.h'
 
 error_header = None
 config_header = None
@@ -97,11 +98,26 @@ if error_header != None and config_header != None:
         error_code_tuples = error_code_re.findall(error_header)
         error_codes = [ErrorCode(x[0],x[1], min_err) for x in error_code_tuples]
         header = generate_header(error_codes)
-
-        with open('CHIPErrorToExceptionBindings.h', 'w') as f:
-            f.write(header)
-        
         cpp = generate_cpp(error_codes)
 
-        with open('CHIPErrorToExceptionBindings.cpp', 'w') as f:
-            f.write(cpp)
+
+def main(argv):
+    parser = optparse.OptionParser()
+    parser.add_option('--output_cpp_file')
+    parser.add_option('--output_header_file')
+
+
+    options, _ = parser.parse_args(argv)
+
+    with open(options.output_cpp_file, 'w') as output_cpp_file:
+        output_cpp_file.write(cpp)
+
+    with open(options.output_header_file, 'w') as output_header_file:
+        output_header_file.write(header)
+
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
