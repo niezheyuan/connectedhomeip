@@ -27,53 +27,43 @@ if (current_os == "mac") {
 }
 
 config("controller_wno_deprecate") {
-  cflags = [ 
-    "-Wno-deprecated-declarations", 
-  "-Wno-shadow",
-  "-Wno-unused-result",
-  "-Wsign-compare",
-  "-Wunreachable-code"
-  ]
+  cflags = [ "-Wno-deprecated-declarations" ]
 }
 
-shared_library("CHIPController") {
-  output_name = "CHIPController"
-  output_dir = "${target_out_dir}/PyCHIPController"
-  include_dirs = [ 
-                  "." , 
-                  "/usr/local/include/pybind11/", 
-                  "/Library/Frameworks/Python.framework/Versions/3.9/include/python3.9",
-                  ]
+shared_library("ChipDeviceCtrl") {
+  output_name = "_ChipDeviceCtrl"
+  output_dir = "${target_out_dir}/chip"
+  include_dirs = [ "." ]
 
   sources = [
+    "ChipDeviceController-ScriptBinding.cpp",
+    "ChipDeviceController-ScriptDeviceAddressUpdateDelegate.cpp",
+    "ChipDeviceController-ScriptDeviceAddressUpdateDelegate.h",
+    "ChipDeviceController-ScriptDevicePairingDelegate.cpp",
+    "ChipDeviceController-ScriptDevicePairingDelegate.h",
     "ChipDeviceController-StorageDelegate.cpp",
     "ChipDeviceController-StorageDelegate.h",
-    "Delegate.cpp",
-    "Delegate.h",
-    "CHIPDeviceController-PyBind.cpp",
-    "CHIPDeviceController-PyBind.h",
-    "ControlerBinder.cpp",
-    "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.cpp",
-    "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.h",
+    "chip/clusters/CHIPClusters.cpp",
+    "chip/discovery/NodeResolution.cpp",
+    "chip/interaction_model/Delegate.cpp",
+    "chip/interaction_model/Delegate.h",
+    "chip/internal/ChipThreadWork.cpp",
+    "chip/internal/ChipThreadWork.h",
+    "chip/internal/CommissionerImpl.cpp",
+    "chip/logging/LoggingRedirect.cpp",
+    "chip/native/StackInit.cpp",
+    "chip/setup_payload/Parser.cpp",
   ]
 
   if (chip_enable_ble) {
     if (current_os == "linux") {
       sources += [ "chip/ble/LinuxImpl.cpp" ]
     } else if (current_os == "mac") {
-      cflags = [ 
-        "-fobjc-arc" ,
-        "-fno-common", 
-        "-dynamic", 
-        "-DNDEBUG", 
-        "-g", 
-        "-fwrapv",
-        "-O3", 
-        "-arch",
-         "arm64", 
-         "-arch", 
-         "x86_64",
-        "-g"]
+      sources += [
+        "chip/ble/darwin/AdapterListing.mm",
+        "chip/ble/darwin/Scanning.mm",
+      ]
+      cflags = [ "-fobjc-arc" ]
     } else {
       assert(false, "No BLE implementation available for the current OS.")
     }
@@ -89,34 +79,8 @@ shared_library("CHIPController") {
     "${chip_root}/src/platform",
     "${chip_root}/src/setup_payload",
     "${chip_root}/src/transport",
-    ":build_exceptions" 
   ]
   configs += [ ":controller_wno_deprecate" ]
-  ldflags = [
-    "-F/Library/Frameworks/",  
-    "-framework", 
-    "Python", 
-    "-framework", 
-    "CoreFoundation",
-    "-L/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin",
-    "-frtti"
-    ]
-}
-pw_python_action("build_exceptions") {
-  script = "create_error_wrapper.py"
-
-  header_file = "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.h"
-  cpp_file = "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.cpp"
-  outputs = [
-              header_file,
-              cpp_file,
-            ]
-
-  args = [
-    "--output_cpp_file=" + rebase_path(cpp_file, root_build_dir),
-    "--output_header_file="+ rebase_path(header_file, root_build_dir),
-  ]
-
 }
 
 pw_python_action("python") {
@@ -128,11 +92,44 @@ pw_python_action("python") {
       sources = [
         "chip-device-ctrl.py",
         "chip-repl.py",
+        "chip/ChipBleBase.py",
+        "chip/ChipBleUtility.py",
+        "chip/ChipBluezMgr.py",
+        "chip/ChipCoreBluetoothMgr.py",
+        "chip/ChipDeviceCtrl.py",
+        "chip/ChipStack.py",
+        "chip/ChipUtility.py",
+        "chip/__init__.py",
+        "chip/ble/__init__.py",
+        "chip/ble/commissioning/__init__.py",
+        "chip/ble/get_adapters.py",
+        "chip/ble/library_handle.py",
+        "chip/ble/scan_devices.py",
+        "chip/ble/types.py",
+        "chip/clusters/CHIPClusters.py",
+        "chip/clusters/__init__.py",
+        "chip/configuration/__init__.py",
+        "chip/discovery/__init__.py",
+        "chip/discovery/library_handle.py",
+        "chip/discovery/types.py",
+        "chip/exceptions/__init__.py",
+        "chip/interaction_model/delegate.py",
+        "chip/internal/__init__.py",
+        "chip/internal/commissioner.py",
+        "chip/internal/thread.py",
+        "chip/internal/types.py",
+        "chip/logging/__init__.py",
+        "chip/logging/library_handle.py",
+        "chip/logging/types.py",
+        "chip/native/__init__.py",
+        "chip/setup_payload/__init__.py",
+        "chip/setup_payload/setup_payload.py",
+        "chip/tlv/__init__.py",
       ]
     },
     {
       src_dir = target_out_dir
-      sources = [ "${target_out_dir}/PyCHIPController/CHIPController.so" ]
+      sources = [ "${target_out_dir}/chip/_ChipDeviceCtrl.so" ]
     },
     {
       src_dir = "//"
@@ -183,7 +180,7 @@ pw_python_action("python") {
 
   args = [
     "--package_name",
-    "PyCHIPController",
+    "chip",
     "--build_number",
     "0.0",
     "--build_dir",
@@ -196,8 +193,8 @@ pw_python_action("python") {
     platform_tag,
   ]
 
-  public_deps = [ ":CHIPController" ]
+  public_deps = [ ":ChipDeviceCtrl" ]
 
-  output_name = "CHIPController-0.0.dist-info-0.0-${tags}.whl"
+  output_name = "chip-0.0-${tags}.whl"
   outputs = [ "${_dist_dir}/$output_name" ]
 }

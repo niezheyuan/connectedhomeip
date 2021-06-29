@@ -51,7 +51,7 @@ class InstalledScriptInfo:
       self.installName = os.path.splitext(name)[0]
 
 
-chipDLLName = 'CHIPController.so'
+chipDLLName = '_ChipDeviceCtrl.so'
 packageName = args.package_name
 chipPackageVer = args.build_number
 
@@ -125,7 +125,20 @@ try:
     # Build the chip package...
     #
     packages=[
-        'PyCHIPController'
+            'chip',
+            'chip.ble',
+            'chip.ble.commissioning',
+            'chip.configuration',
+            'chip.clusters',
+            'chip.discovery',
+            'chip.exceptions',
+            'chip.internal',
+            'chip.interaction_model',
+            'chip.logging',
+            'chip.native',
+            'chip.clusters',
+            'chip.tlv',
+            'chip.setup_payload',
     ]
 
     # Invoke the setuptools 'bdist_wheel' command to generate a wheel containing
