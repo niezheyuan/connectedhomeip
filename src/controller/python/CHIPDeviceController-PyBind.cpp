@@ -15,7 +15,6 @@
 
 #include "ChipDeviceController-StorageDelegate.h"
 
-
 #include <controller/python/Delegate.h>
 
 #include <app/CommandSender.h>
@@ -28,7 +27,6 @@
 #include <support/CodeUtils.h>
 #include <support/DLLUtil.h>
 #include <support/logging/CHIPLogging.h>
-
 
 using namespace chip;
 using namespace chip::Ble;
@@ -45,7 +43,7 @@ namespace Controller {
 CHIPDeviceControllerPyBind::CHIPDeviceControllerPyBind()
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
-    err = chip::Platform::MemoryInit();
+    err            = chip::Platform::MemoryInit();
     SuccessOrExit(err);
 
     deviceCommissioner = new chip::Controller::DeviceCommissioner();
@@ -60,7 +58,8 @@ exit:
     return;
 }
 
-CHIP_ERROR CHIPDeviceControllerPyBind::Init(){
+CHIP_ERROR CHIPDeviceControllerPyBind::Init()
+{
     CHIP_ERROR err = CHIP_NO_ERROR;
     SuccessOrExit(err = sOperationalCredentialsIssuer.Initialize(sStorageDelegate));
     initParams.storageDelegate                = &sStorageDelegate;
@@ -75,41 +74,48 @@ exit:
     return err;
 }
 // pychip_DeviceController_ConnectBLE
-CHIP_ERROR CHIPDeviceControllerPyBind::PairBLE(uint16_t discriminator,
-                                              uint32_t setupPINCode, NodeId nodeid){
+CHIP_ERROR CHIPDeviceControllerPyBind::PairBLE(uint16_t discriminator, uint32_t setupPINCode, NodeId nodeid)
+{
     return deviceCommissioner->PairDevice(nodeid,
-                               chip::RendezvousParameters()
-                                   .SetPeerAddress(Transport::PeerAddress(Transport::Type::kBle))
-                                   .SetSetupPINCode(setupPINCode)
-                                   .SetDiscriminator(discriminator));
+                                          chip::RendezvousParameters()
+                                              .SetPeerAddress(Transport::PeerAddress(Transport::Type::kBle))
+                                              .SetSetupPINCode(setupPINCode)
+                                              .SetDiscriminator(discriminator));
 }
 
-CHIP_ERROR CHIPDeviceControllerPyBind::StopPairingBLE(NodeId nodeid){
+CHIP_ERROR CHIPDeviceControllerPyBind::StopPairingBLE(NodeId nodeid)
+{
     return deviceCommissioner->StopPairing(nodeid);
 }
 
-CHIP_ERROR CHIPDeviceControllerPyBind::UnpairDevice(NodeId remoteDeviceId){
+CHIP_ERROR CHIPDeviceControllerPyBind::UnpairDevice(NodeId remoteDeviceId)
+{
     return deviceCommissioner->UnpairDevice(remoteDeviceId);
 }
 
-CHIP_ERROR CHIPDeviceControllerPyBind::CloseBleConnection(){
+CHIP_ERROR CHIPDeviceControllerPyBind::CloseBleConnection()
+{
     return deviceCommissioner->CloseBleConnection();
 }
 
-CHIP_ERROR CHIPDeviceControllerPyBind::Shutdown(){
+CHIP_ERROR CHIPDeviceControllerPyBind::Shutdown()
+{
     return deviceCommissioner->Shutdown();
 }
-CHIP_ERROR CHIPDeviceControllerPyBind::DiscoverAllCommissioning(){
+CHIP_ERROR CHIPDeviceControllerPyBind::DiscoverAllCommissioning()
+{
     return deviceCommissioner->DiscoverAllCommissioning();
 }
 
-void CHIPDeviceControllerPyBind::SetDeviceAddressUpdateDelegate(chip::Controller::DeviceAddressUpdateDelegate *delegate){
+void CHIPDeviceControllerPyBind::SetDeviceAddressUpdateDelegate(chip::Controller::DeviceAddressUpdateDelegate * delegate)
+{
     sDeviceAddressUpdateDelegate = delegate;
 }
 
-void CHIPDeviceControllerPyBind::SetDevicePairingDelegate(chip::Controller::DevicePairingDelegate *delegate){
+void CHIPDeviceControllerPyBind::SetDevicePairingDelegate(chip::Controller::DevicePairingDelegate * delegate)
+{
     sPairingDelegate = delegate;
 }
 
-}//Controller
-}//chip
+} // namespace Controller
+} // namespace chip

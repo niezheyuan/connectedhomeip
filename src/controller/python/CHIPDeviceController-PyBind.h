@@ -16,13 +16,11 @@
  *    limitations under the License.
  */
 #pragma once
+#include "PyDelegateWrappers.h"
 #include <controller/CHIPDevice.h>
 #include <controller/CHIPDeviceController.h>
 #include <core/CHIPCore.h>
 #include <setup_payload/QRCodeSetupPayloadParser.h>
-#include "PyDelegateWrappers.h"
-
-
 
 namespace chip {
 namespace Controller {
@@ -39,18 +37,16 @@ public:
     CHIP_ERROR Shutdown();
     CHIP_ERROR UnpairDevice(NodeId remoteDeviceId);
     CHIP_ERROR DiscoverAllCommissioning();
-    void SetDeviceAddressUpdateDelegate(chip::Controller::DeviceAddressUpdateDelegate *sdelegate);
-    void SetDevicePairingDelegate(chip::Controller::DevicePairingDelegate *delegate);
-
+    void SetDeviceAddressUpdateDelegate(chip::Controller::DeviceAddressUpdateDelegate * sdelegate);
+    void SetDevicePairingDelegate(chip::Controller::DevicePairingDelegate * delegate);
 
 private:
     chip::Controller::DeviceCommissioner * deviceCommissioner;
     NodeId localDeviceId;
     NodeId kDefaultCtlrDeviceId = kTestControllerNodeId;
-    chip::Controller::DeviceAddressUpdateDelegate *sDeviceAddressUpdateDelegate;
-    chip::Controller::DevicePairingDelegate *sPairingDelegate;
+    chip::Controller::DeviceAddressUpdateDelegate * sDeviceAddressUpdateDelegate;
+    chip::Controller::DevicePairingDelegate * sPairingDelegate;
     chip::Controller::CommissionerInitParams initParams;
-
 };
 
 } // Namespace Controller
