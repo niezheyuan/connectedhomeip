@@ -48,7 +48,7 @@ PYBIND11_MODULE(CHIPController, root_module) {
   py::class_<chip::QRCodeSetupPayloadParser>(root_module, "QRCodeSetupPayloadParser")
     .def(py::init<const std::string &>())
     .def("populatePayload", &chip::QRCodeSetupPayloadParser::populatePayload);
-  
+
   py::class_<chip::ManualSetupPayloadParser>(root_module, "ManualSetupPayloadParser")
     .def(py::init<const std::string &>())
     .def("populatePayload", &chip::ManualSetupPayloadParser::populatePayload);

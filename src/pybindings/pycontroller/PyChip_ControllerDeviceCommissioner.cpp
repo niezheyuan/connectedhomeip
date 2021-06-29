@@ -4,12 +4,12 @@
 #include <app/InteractionModelDelegate.h> // chip::app::InteractionModelDelegate
 #include <app/MessageDef/CommandDataElement.h> // chip::app::CommandDataElement::Parser
 #include <ble/BleLayer.h> // chip::Ble::BleLayer
-#include <controller/CHIPDevice.h> // 
+#include <controller/CHIPDevice.h> //
 #include <controller/CHIPDevice.h> // chip::Controller::ControllerDeviceInitParams
 #include <controller/CHIPDevice.h> // chip::Controller::Device
 #include <controller/CHIPDevice.h> // chip::Controller::DeviceStatusDelegate
 #include <controller/CHIPDevice.h> // chip::Controller::SerializedDevice
-#include <controller/CHIPDeviceController.h> // 
+#include <controller/CHIPDeviceController.h> //
 #include <controller/CHIPDeviceController.h> // chip::Controller::BasicFailure
 #include <controller/CHIPDeviceController.h> // chip::Controller::BasicSuccess
 #include <controller/CHIPDeviceController.h> // chip::Controller::CommissionerInitParams
@@ -52,7 +52,7 @@
 #include <system/SystemPacketBuffer.h> // chip::System::PacketBufferHandle
 #include <transport/AdminPairingTable.h> // chip::Transport::AdminPairingTable
 #include <transport/PeerConnectionState.h> // chip::Transport::PeerConnectionState
-#include <transport/SecureSession.h> // 
+#include <transport/SecureSession.h> //
 #include <transport/SecureSession.h> // chip::SecureSession
 #include <transport/SecureSessionHandle.h> // chip::SecureSessionHandle
 #include <transport/SecureSessionMgr.h> // chip::SecureSessionMgr
@@ -681,5 +681,5 @@ void bind_PyChip_ControllerDeviceCommissioner(std::function< pybind11::module &(
 		cl.def("CloseBleConnection", (int (chip::Controller::DeviceCommissioner::*)()) &chip::Controller::DeviceCommissioner::CloseBleConnection, "Once we have finished all commissioning work, the Controller should close the BLE\n   connection to the device and establish CASE session / another PASE session to the device\n   if needed.\n \n\n CHIP_ERROR   The return status\n\nC++: chip::Controller::DeviceCommissioner::CloseBleConnection() --> int");
 		cl.def("RegisterPairingDelegate", (void (chip::Controller::DeviceCommissioner::*)(class chip::Controller::DevicePairingDelegate *)) &chip::Controller::DeviceCommissioner::RegisterPairingDelegate, "C++: chip::Controller::DeviceCommissioner::RegisterPairingDelegate(class chip::Controller::DevicePairingDelegate *) --> void", pybind11::arg("pairingDelegate"));
 	}
-	
+
 }

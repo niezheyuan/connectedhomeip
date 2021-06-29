@@ -4,7 +4,7 @@
 #include <app/InteractionModelDelegate.h> // chip::app::InteractionModelDelegate
 #include <app/MessageDef/CommandDataElement.h> // chip::app::CommandDataElement::Parser
 #include <ble/BleLayer.h> // chip::Ble::BleLayer
-#include <controller/CHIPDevice.h> // 
+#include <controller/CHIPDevice.h> //
 #include <controller/CHIPDevice.h> // chip::Controller::ControllerDeviceInitParams
 #include <controller/CHIPDevice.h> // chip::Controller::Device
 #include <controller/CHIPDevice.h> // chip::Controller::DeviceStatusDelegate
@@ -41,7 +41,7 @@
 #include <system/SystemPacketBuffer.h> // chip::System::PacketBufferHandle
 #include <transport/AdminPairingTable.h> // chip::Transport::AdminPairingTable
 #include <transport/PeerConnectionState.h> // chip::Transport::PeerConnectionState
-#include <transport/SecureSession.h> // 
+#include <transport/SecureSession.h> //
 #include <transport/SecureSession.h> // chip::SecureSession
 #include <transport/SecureSessionHandle.h> // chip::SecureSessionHandle
 #include <transport/SecureSessionMgr.h> // chip::SecureSessionMgr
