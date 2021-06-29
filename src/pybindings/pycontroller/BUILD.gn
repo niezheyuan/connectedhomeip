@@ -26,60 +26,62 @@ if (current_os == "mac") {
 }
 
 config("controller_wno_deprecate") {
-  cflags = [ 
-    "-Wno-deprecated-declarations", 
-  "-Wno-shadow",
-  "-Wno-unused-result",
-  "-Wsign-compare",
-  "-Wunreachable-code"
+  cflags = [
+    "-Wno-deprecated-declarations",
+    "-Wno-shadow",
+    "-Wno-unused-result",
+    "-Wsign-compare",
+    "-Wunreachable-code",
   ]
 }
 
 shared_library("CHIPController") {
   output_name = "PyChip"
   output_dir = "${target_out_dir}/pybindings"
-  include_dirs = [ 
-                  "/usr/local/include/pybind11/", 
-                  "/Library/Frameworks/Python.framework/Versions/3.9/include/python3.9",
-                  ]
+  include_dirs = [
+    "/usr/local/include/pybind11/",
+    "/Library/Frameworks/Python.framework/Versions/3.9/include/python3.9",
+  ]
 
   sources = [
+    "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.cpp",
+    "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.h",
     "PyChip_ControllerDeviceCommissioner.cpp",
     "PyChip_ControllerInitParams.cpp",
     "PyChip_DeviceAddressUpdateDelegate.cpp",
+    "PyChip_Main.cpp",
+    "PyChip_Memory.cpp",
+    "PyChip_PlatFormManager.cpp",
     "PyChip_Rendezvous.cpp",
     "PyChip_SetupPayload.cpp",
     "PyChip_TransportType.cpp",
-    "PyChip_Memory.cpp",
-    "PyChip_PlatFormManager.cpp",
-    "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.cpp",
-    "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.h",
-    "PyChip_Main.cpp",
   ]
 
   if (chip_enable_ble) {
     if (current_os == "linux") {
       sources += [ "chip/ble/LinuxImpl.cpp" ]
     } else if (current_os == "mac") {
-      cflags = [ 
-        "-fobjc-arc" ,
-        "-fno-common", 
-        "-dynamic", 
-        "-DNDEBUG", 
-        "-g", 
+      cflags = [
+        "-fobjc-arc",
+        "-fno-common",
+        "-dynamic",
+        "-DNDEBUG",
+        "-g",
         "-fwrapv",
-        "-O3", 
+        "-O3",
         "-arch",
-         "arm64", 
-         "-arch", 
-         "x86_64",
-        "-g"]
+        "arm64",
+        "-arch",
+        "x86_64",
+        "-g",
+      ]
     } else {
       assert(false, "No BLE implementation available for the current OS.")
     }
   }
 
   public_deps = [
+    ":build_exceptions",
     "${chip_root}/src/app",
     "${chip_root}/src/controller/data_model",
     "${chip_root}/src/lib",
@@ -89,36 +91,37 @@ shared_library("CHIPController") {
     "${chip_root}/src/platform",
     "${chip_root}/src/setup_payload",
     "${chip_root}/src/transport",
-    ":build_exceptions" 
   ]
   configs += [ ":controller_wno_deprecate" ]
   ldflags = [
-    "-F/Library/Frameworks/",  
-    "-framework", 
-    "Python", 
-    "-framework", 
+    "-F/Library/Frameworks/",
+    "-framework",
+    "Python",
+    "-framework",
     "CoreFoundation",
     "-L/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin",
-    "-frtti"
-    ]
+    "-frtti",
+  ]
 }
 pw_python_action("build_exceptions") {
   script = "create_error_wrapper.py"
 
-  header_file = "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.h"
+  header_file =
+      "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.h"
   cpp_file = "${root_gen_dir}/include/controller/python/CHIPErrorToExceptionBindings.cpp"
   outputs = [
-              header_file,
-              cpp_file,
-            ]
+    header_file,
+    cpp_file,
+  ]
 
   args = [
     "--output_cpp_file=" + rebase_path(cpp_file, root_build_dir),
     "--output_header_file=" + rebase_path(header_file, root_build_dir),
-    "--error_header=" + rebase_path("${chip_root}/src/lib/core/CHIPError.h", root_build_dir),
-    "--config_header=" + rebase_path("${chip_root}/src/lib/core/CHIPConfig.h", root_build_dir),
+    "--error_header=" +
+        rebase_path("${chip_root}/src/lib/core/CHIPError.h", root_build_dir),
+    "--config_header=" +
+        rebase_path("${chip_root}/src/lib/core/CHIPConfig.h", root_build_dir),
   ]
-
 }
 
 pw_python_action("pycontroller") {

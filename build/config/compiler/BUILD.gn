@@ -334,7 +334,6 @@ config("fuzzing_default") {
 }
 
 config("no_rtti") {
-
 }
 
 config("rtti") {
@@ -346,7 +345,6 @@ config("rtti_default") {
 }
 
 config("no_exceptions") {
-
 }
 
 config("exceptions") {
